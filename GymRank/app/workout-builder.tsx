@@ -1,13 +1,15 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as Haptics from 'expo-haptics';
 import { router } from 'expo-router';
-import { playSound } from '../services/soundService';
+import { useSoundEffects } from '../services/soundService';
 
 import type {
-  RankingState,
-  BodyPartRating,
-  LiftRating,
-} from '../types/ranking';
+  MuscleGroup,
+  SetData,
+  Exercise,
+  ExerciseDefinition,
+  WorkoutState,
+} from '../types/workout';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Alert,
@@ -21,45 +23,6 @@ import {
   TextInput,
   View,
 } from 'react-native';
-
-type MuscleGroup =
-  | 'Chest'
-  | 'Back'
-  | 'Shoulders'
-  | 'Biceps'
-  | 'Triceps'
-  | 'Quads'
-  | 'Hamstrings'
-  | 'Glutes'
-  | 'Calves'
-  | 'Core';
-
-type SetData = {
-  id: string;
-  weight: string;
-  reps: string;
-  completed: boolean;
-};
-
-type Exercise = {
-  id: string;
-  name: string;
-  muscleGroup: MuscleGroup;
-  sets: SetData[];
-};
-
-type ExerciseDefinition = {
-  name: string;
-  muscleGroup: MuscleGroup;
-};
-
-type WorkoutState = {
-  id: string;
-  name: string;
-  startedAt: number;
-  updatedAt: number;
-  exercises: Exercise[];
-};
 
 const ACTIVE_WORKOUT_KEY = '@gymrank/active-workout';
 const COMPLETED_WORKOUTS_KEY = '@gymrank/completed-workouts';
@@ -197,6 +160,8 @@ export default function WorkoutBuilder() {
 
   const saveTimeout =
     useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const { playSound } = useSoundEffects();
 
   /*
    * Load an existing active workout.
@@ -538,6 +503,8 @@ export default function WorkoutBuilder() {
       await Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success
       );
+
+      playSound('set_complete');
     }
   }
 
@@ -651,6 +618,8 @@ export default function WorkoutBuilder() {
       await Haptics.notificationAsync(
         Haptics.NotificationFeedbackType.Success
       );
+
+      playSound('workout_complete');
 
       router.back();
     } catch (error) {

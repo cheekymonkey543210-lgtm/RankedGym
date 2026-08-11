@@ -1,7 +1,7 @@
-import { DarkTheme, ThemeProvider } from 'expo-router';
+import { DarkTheme, ThemeProvider } from '@react-navigation/native';
 import { StatusBar } from 'expo-status-bar';
 
-import AppTabs from '@/components/app-tabs';
+import AppTabs from '../components/app-tabs';
 
 export default function RootLayout() {
   return (

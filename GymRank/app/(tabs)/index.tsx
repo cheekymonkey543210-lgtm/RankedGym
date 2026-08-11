@@ -14,7 +14,7 @@ export default function WorkoutScreen() {
 
       <Pressable
         style={styles.startCard}
-        onPress={() => router.push('/workout-builder')}
+        onPress={() => router.push('../workout-builder')}
       >
         <View>
           <Text style={styles.cardTitle}>Start empty workout</Text>

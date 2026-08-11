@@ -1,4 +1,5 @@
-import { createAudioPlayer } from 'expo-audio';
+import { useAudioPlayer } from 'expo-audio';
+import { useCallback } from 'react';
 
 import setCompleteSound from '../assets/sounds/set-complete.mp3';
 import workoutCompleteSound from '../assets/sounds/workout-complete.mp3';
@@ -15,37 +16,33 @@ const SOUND_SOURCES = {
   rank_up: rankUpSound,
 } as const;
 
-/**
- * Plays a short UI sound.
- *
- * Audio is intentionally treated as an enhancement.
- * If playback fails, workout functionality continues.
- */
-export function playSound(effect: SoundEffect) {
-  try {
-    const player = createAudioPlayer(
-      SOUND_SOURCES[effect]
-    );
+export function useSoundEffects() {
+  const setCompletePlayer = useAudioPlayer(
+    SOUND_SOURCES.set_complete
+  );
+  const workoutCompletePlayer = useAudioPlayer(
+    SOUND_SOURCES.workout_complete
+  );
+  const rankUpPlayer = useAudioPlayer(
+    SOUND_SOURCES.rank_up
+  );
 
-    player.volume =
-      effect === 'set_complete'
-        ? 0.65
-        : 0.8;
+  const playSound = useCallback(
+    (effect: SoundEffect) => {
+      const player =
+        effect === 'set_complete'
+          ? setCompletePlayer
+          : effect === 'workout_complete'
+            ? workoutCompletePlayer
+            : rankUpPlayer;
 
-    player.play();
-
-    setTimeout(() => {
-      try {
-        player.remove();
-      } catch {
-        // Audio cleanup must never interrupt workout logging.
+      if (player?.isLoaded) {
+        player.seekTo(0);
+        player.play();
       }
-    }, 2000);
-  } catch (error) {
-    console.warn(
-      `Failed to play ${effect} sound:`,
-      error
-    );
-  }
-}
+    },
+    [setCompletePlayer, workoutCompletePlayer, rankUpPlayer]
+  );
 
+  return { playSound };
+}
